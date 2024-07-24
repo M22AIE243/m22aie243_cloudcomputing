@@ -125,4 +125,34 @@ LEFT JOIN (
 WHERE t.owner = 'ABC' AND i.table_name IS NULL
 ORDER BY t.table_name;
 
+-- List of primary keys in schema ABC
+SELECT 'Primary Key' AS constraint_type, 
+       pk.table_name AS primary_key_table, 
+       pkc.column_name AS primary_key_column,
+       '' AS foreign_key_table, -- No foreign key table for primary keys
+       '' AS foreign_key_column -- No foreign key column for primary keys
+FROM all_constraints pk
+JOIN all_cons_columns pkc 
+  ON pk.constraint_name = pkc.constraint_name AND pk.owner = pkc.owner
+WHERE pk.owner = 'ABC'
+  AND pk.constraint_type = 'P'
+
+UNION ALL
+
+-- List of foreign key relationships in schema ABC
+SELECT 'Foreign Key' AS constraint_type, 
+       pk.table_name AS primary_key_table, 
+       pkc.column_name AS primary_key_column,
+       fk.table_name AS foreign_key_table,
+       fkc.column_name AS foreign_key_column
+FROM all_constraints fk
+JOIN all_cons_columns fkc 
+  ON fk.constraint_name = fkc.constraint_name AND fk.owner = fkc.owner
+JOIN all_constraints pk 
+  ON fk.r_constraint_name = pk.constraint_name
+JOIN all_cons_columns pkc 
+  ON pk.constraint_name = pkc.constraint_name AND pk.owner = pkc.owner
+WHERE fk.constraint_type = 'R'
+  AND fk.owner = 'ABC'
+ORDER BY primary_key_table, primary_key_column, foreign_key_table, foreign_key_column;
 
