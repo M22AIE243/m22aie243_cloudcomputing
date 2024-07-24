@@ -1,0 +1,128 @@
+
+SELECT table_name FROM all_tables WHERE owner = 'ABC';
+
+SELECT table_name, grantee, privilege
+FROM dba_tab_privs
+WHERE owner = 'ABC'
+  AND grantee IN ('ROLE1', 'ROLE2')
+ORDER BY table_name, grantee, privilege;
+
+
+
+SELECT t.table_name,
+       p.grantee,
+       p.privilege
+FROM all_tables t
+LEFT JOIN dba_tab_privs p
+  ON t.table_name = p.table_name
+  AND t.owner = p.owner
+  AND p.grantee IN ('ROLE1', 'ROLE2')
+WHERE t.owner = 'ABC'
+ORDER BY t.table_name, p.grantee, p.privilege;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON ABC.table_name TO ROLE1;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ABC.table_name TO ROLE2;
+
+
+-- List all tables not in schema ABC
+SELECT 'TABLE' AS object_type, owner, table_name AS object_name
+FROM all_tables
+WHERE owner <> 'ABC'
+UNION ALL
+-- List all indexes not in schema ABC
+SELECT 'INDEX' AS object_type, owner, index_name AS object_name
+FROM all_indexes
+WHERE owner <> 'ABC'
+UNION ALL
+-- List all sequences not in schema ABC
+SELECT 'SEQUENCE' AS object_type, sequence_owner AS owner, sequence_name AS object_name
+FROM all_sequences
+WHERE sequence_owner <> 'ABC'
+ORDER BY object_type, owner, object_name;
+
+-- List all tables not in schema ABC
+SELECT 'TABLE' AS object_type, owner, table_name AS object_name
+FROM all_tables
+WHERE owner <> 'ABC'
+UNION ALL
+-- List all indexes not in schema ABC
+SELECT 'INDEX' AS object_type, owner, index_name AS object_name
+FROM all_indexes
+WHERE owner <> 'ABC'
+UNION ALL
+-- List all sequences not in schema ABC
+SELECT 'SEQUENCE' AS object_type, sequence_owner AS owner, sequence_name AS object_name
+FROM all_sequences
+WHERE sequence_owner <> 'ABC'
+ORDER BY object_type, owner, object_name;
+
+-- List all tables not in tablespace ABC_TABLESPACE
+SELECT 'TABLE' AS object_type, owner, table_name AS object_name, tablespace_name
+FROM all_tables
+WHERE tablespace_name <> 'ABC_TABLESPACE'
+UNION ALL
+-- List all indexes not in tablespace ABC_TABLESPACE
+SELECT 'INDEX' AS object_type, owner, index_name AS object_name, tablespace_name
+FROM all_indexes
+WHERE tablespace_name <> 'ABC_TABLESPACE'
+UNION ALL
+-- List all sequences not owned by schema ABC (since sequences do not reside in a specific tablespace)
+SELECT 'SEQUENCE' AS object_type, sequence_owner AS owner, sequence_name AS object_name, NULL AS tablespace_name
+FROM all_sequences
+WHERE sequence_owner <> 'ABC'
+ORDER BY object_type, owner, object_name;
+
+-- List tables and their indexes
+SELECT t.table_name, i.index_name
+FROM all_tables t
+LEFT JOIN all_indexes i
+  ON t.table_name = i.table_name AND t.owner = i.owner
+WHERE t.owner = 'YOUR_SCHEMA_NAME'
+ORDER BY t.table_name, i.index_name;
+
+-- List tables without any indexes
+SELECT t.table_name
+FROM all_tables t
+LEFT JOIN all_indexes i
+  ON t.table_name = i.table_name AND t.owner = i.owner
+WHERE t.owner = 'YOUR_SCHEMA_NAME'
+  AND i.index_name IS NULL;
+
+
+-- List of primary keys in schema ABC
+SELECT 'Primary Key' AS constraint_type, table_name, column_name
+FROM all_cons_columns
+WHERE owner = 'ABC'
+  AND constraint_name IN (
+    SELECT constraint_name
+    FROM all_constraints
+    WHERE constraint_type = 'P'
+      AND owner = 'ABC'
+  )
+UNION ALL
+-- List of foreign key relationships in schema ABC
+SELECT 'Foreign Key' AS constraint_type, fk.table_name, fkc.column_name
+FROM
+  all_constraints fk
+  JOIN all_cons_columns fkc ON fk.constraint_name = fkc.constraint_name AND fk.owner = fkc.owner
+  JOIN all_constraints pk ON fk.r_constraint_name = pk.constraint_name
+  JOIN all_cons_columns pkc ON pk.constraint_name = pkc.constraint_name AND pk.owner = pkc.owner
+WHERE
+  fk.constraint_type = 'R'
+  AND fk.owner = 'ABC'
+ORDER BY
+  table_name, column_name;
+
+
+
+SELECT t.table_name
+FROM all_tables t
+LEFT JOIN (
+  SELECT DISTINCT table_name
+  FROM all_indexes
+  WHERE owner = 'ABC'
+) i ON t.table_name = i.table_name
+WHERE t.owner = 'ABC' AND i.table_name IS NULL
+ORDER BY t.table_name;
+
+
