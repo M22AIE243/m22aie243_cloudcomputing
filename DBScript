@@ -156,3 +156,30 @@ WHERE fk.constraint_type = 'R'
   AND fk.owner = 'ABC'
 ORDER BY primary_key_table, primary_key_column, foreign_key_table, foreign_key_column;
 
+//
+
+SELECT constname AS constraint_name,
+       tbname AS table_name,
+       reftbname AS referenced_table_name,
+       fk_colnames AS foreign_key_columns,
+       pk_colnames AS primary_key_columns
+FROM syscat.references
+WHERE tabschema = 'ABC'
+ORDER BY tbname, constname;
+
+SELECT constname AS constraint_name,
+       tabname AS table_name,
+       enforced
+FROM syscat.checks
+WHERE tabschema = 'ABC'
+ORDER BY tabname, constname;
+
+SELECT constname AS constraint_name,
+       tabname AS table_name,
+       type AS constraint_type,
+       enforced
+FROM syscat.tabconst
+WHERE tabschema = 'ABC'
+ORDER BY tabname, constname;
+
+
