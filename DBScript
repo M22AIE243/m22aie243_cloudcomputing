@@ -182,4 +182,20 @@ FROM syscat.tabconst
 WHERE tabschema = 'ABC'
 ORDER BY tabname, constname;
 
+#current
+SELECT 
+    p.grantee, 
+    p.privilege, 
+    p.table_name AS sequence_name, 
+    p.grantor
+FROM 
+    dba_tab_privs p
+JOIN 
+    all_sequences s ON p.table_name = s.sequence_name AND p.owner = s.sequence_owner
+WHERE 
+    s.sequence_owner = 'ABC'
+    AND s.sequence_owner = p.owner
+    AND p.table_name = s.sequence_name
+ORDER BY 
+    p.table_name, p.grantee;
 
