@@ -199,3 +199,21 @@ WHERE
 ORDER BY 
     p.table_name, p.grantee;
 
+-- Oracle Generate checksum for each row
+SELECT 
+    DBMS_CRYPTO.HASH(UTL_RAW.CAST_TO_RAW(col1 || col2 || col3 || ...), 2) AS row_checksum
+FROM 
+    target_table;
+
+SELECT SUM(STANDARD_HASH(column_name, 'CRC32')) FROM target_table;
+
+
+-- Db2 Generate checksum for each row
+SELECT 
+    CRC32(col1 || col2 || col3 || ...) AS row_checksum
+FROM 
+    source_table;
+
+SELECT SUM(CAST(CRC32(column_name) AS BIGINT)) FROM source_table;
+
+
