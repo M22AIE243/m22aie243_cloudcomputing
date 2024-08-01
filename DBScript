@@ -216,4 +216,23 @@ FROM
 
 SELECT SUM(CAST(CRC32(column_name) AS BIGINT)) FROM source_table;
 
+#
+
+-- Check all grants on the sequence MY_SEQUENCE
+SELECT grantee, privilege, grantable
+FROM all_tab_privs
+WHERE table_name = 'MY_SEQUENCE'
+  AND owner = 'ABC';
+
+-- Check if MY_USER has privileges on the sequence MY_SEQUENCE
+SELECT grantee, privilege, grantable
+FROM all_tab_privs
+WHERE table_name = 'MY_SEQUENCE'
+  AND owner = 'ABC'
+  AND grantee = 'MY_USER';
+
+-- Check all privileges MY_USER has
+SELECT table_name, privilege
+FROM all_tab_privs
+WHERE grantee = 'MY_USER';
 
