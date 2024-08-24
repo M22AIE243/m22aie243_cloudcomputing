@@ -260,34 +260,42 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 
-public class OracleNumListTypeHandler extends BaseTypeHandler<List<Long>> {
+public class OracleLongArrayTypeHandler extends BaseTypeHandler<List<Long>> {
 
-    @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, List<Long> parameter, JdbcType jdbcType) throws SQLException {
-        OracleConnection oracleConnection = ps.getConnection().unwrap(OracleConnection.class);
-      
-        ArrayDescriptor descriptor = ArrayDescriptor.createDescriptor("NUM_LIST", oracleConnection);
-      
-        Long[] longArray = parameter.toArray(new Long[0]);
-        ARRAY oracleArray = new ARRAY(descriptor, oracleConnection, longArray);
-        ps.setArray(i, oracleArray);
-    }
+  @Override
+  public void setNonNullParameter(PreparedStatement ps, int i,
+      List<Long> parameter, JdbcType jdbcType) throws SQLException {
+    // Convert List<Long> to a Long[]
+    Long[] longArray = parameter.toArray(new Long[0]);
 
-    @Override
-    public List<Long> getNullableResult(java.sql.ResultSet rs, String columnName) throws SQLException {
-      
-        return null;
-    }
+    // Get the OracleConnection
+    OracleConnection conn = ps.getConnection().unwrap(OracleConnection.class);
+    
+    // Create an Oracle Array for the "NUM_LIST" type
+    Array array = conn.createOracleArray("NUM_LIST", longArray);
 
-    @Override
-    public List<Long> getNullableResult(java.sql.ResultSet rs, int columnIndex) throws SQLException {
-       
-        return null;
-    }
+    // Set the Array to the PreparedStatement
+    ps.setArray(i, array);
+    
+    // Free the array after usage
+    array.free();
+  }
 
-    @Override
-    public List<Long> getNullableResult(java.sql.CallableStatement cs, int columnIndex) throws SQLException {
-       
-        return null;
-    }
+  @Override
+  public List<Long> getNullableResult(ResultSet rs, String columnName) throws SQLException {
+    // Handle retrieval if necessary
+    return null; // Implement as needed
+  }
+
+  @Override
+  public List<Long> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+    // Handle retrieval if necessary
+    return null; // Implement as needed
+  }
+
+  @Override
+  public List<Long> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+    // Handle retrieval if necessary
+    return null; // Implement as needed
+  }
 }
