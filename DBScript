@@ -235,4 +235,17 @@ WHERE table_name = 'MY_SEQUENCE'
 SELECT table_name, privilege
 FROM all_tab_privs
 WHERE grantee = 'MY_USER';
+#chnage for mybatis
 
+mybatis.config-location=classpath:mybatis-config.xml
+
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeHandlers>
+        <typeHandler handler="your.package.OracleNumListTypeHandler" javaType="java.util.List" jdbcType="ARRAY"/>
+    </typeHandlers>
+</configuration>
