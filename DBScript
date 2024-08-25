@@ -299,3 +299,16 @@ public class OracleLongArrayTypeHandler extends BaseTypeHandler<List<Long>> {
     return null; // Implement as needed
   }
 }
+
+ @Bean
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        sqlSessionFactoryBean.setDataSource(dataSource);
+        
+        // Register the custom TypeHandler
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.getTypeHandlerRegistry().register(List.class, JdbcType.ARRAY, OracleLongArrayTypeHandler.class);
+        sqlSessionFactoryBean.setConfiguration(configuration);
+        
+        return sqlSessionFactoryBean.getObject();
+    }
