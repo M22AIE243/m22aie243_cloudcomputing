@@ -312,3 +312,53 @@ public class OracleLongArrayTypeHandler extends BaseTypeHandler<List<Long>> {
         
         return sqlSessionFactoryBean.getObject();
     }
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+import oracle.jdbc.OracleConnection;
+
+import java.sql.Array;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.sql.CallableStatement;
+import java.util.List;
+
+public class OracleLongArrayTypeHandler extends BaseTypeHandler<List<Long>> {
+
+    @Override
+    public void setNonNullParameter(PreparedStatement ps, int i, List<Long> parameter, JdbcType jdbcType) throws SQLException {
+        OracleConnection conn = ps.getConnection().unwrap(OracleConnection.class);
+        
+        // Convert List<Long> to array of Long objects
+        Long[] array = parameter.toArray(new Long[0]);
+        
+        // Create Oracle Array of type NUM_LIST
+        Array oracleArray = conn.createOracleArray("NUM_LIST", array);
+        
+        ps.setArray(i, oracleArray);
+    }
+
+    @Override
+    public List<Long> getNullableResult(ResultSet rs, String columnName) throws SQLException {
+        return convertSqlArrayToList(rs.getArray(columnName));
+    }
+
+    @Override
+    public List<Long> getNullableResult(ResultSet rs, int columnIndex) throws SQLException {
+        return convertSqlArrayToList(rs.getArray(columnIndex));
+    }
+
+    @Override
+    public List<Long> getNullableResult(CallableStatement cs, int columnIndex) throws SQLException {
+        return convertSqlArrayToList(cs.getArray(columnIndex));
+    }
+
+    private List<Long> convertSqlArrayToList(Array sqlArray) throws SQLException {
+        if (sqlArray == null) {
+            return null;
+        }
+        Long[] array = (Long[]) sqlArray.getArray();
+        return List.of(array);
+    }
+}
+
