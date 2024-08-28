@@ -395,3 +395,23 @@ WHERE granted_role IN ('ROLE1', 'ROLE2')
       WHERE default_tablespace = 'ABC'
   );
 
+-- Check system privileges for ROLE1
+SELECT * 
+FROM dba_sys_privs 
+WHERE grantee = 'ROLE1';
+
+-- Check object privileges for ROLE1
+SELECT * 
+FROM dba_tab_privs 
+WHERE grantee = 'ROLE1';
+
+-- Check if ROLE1 has other roles granted to it
+SELECT * 
+FROM dba_role_privs 
+WHERE grantee = 'ROLE1';
+
+-- Granting CREATE SESSION to USER1
+GRANT CREATE SESSION TO USER1;
+
+-- Granting ROLE1 back to USER1
+GRANT ROLE1 TO USER1;
