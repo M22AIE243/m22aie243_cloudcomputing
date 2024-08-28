@@ -362,3 +362,36 @@ public class OracleLongArrayTypeHandler extends BaseTypeHandler<List<Long>> {
     }
 }
 
+-- Generate REVOKE statements for Role1 and Role2 for all users in schema ABC
+SELECT 'REVOKE ' || granted_role || ' FROM ' || grantee || ';' AS revoke_statement
+FROM dba_role_privs
+WHERE granted_role IN ('ROLE1', 'ROLE2')
+  AND grantee IN (
+      SELECT username
+      FROM dba_users
+      WHERE default_tablespace = 'ABC'  -- Adjust this condition based on how you identify users in schema ABC
+  );
+BEGIN
+    FOR revoke_stmt IN (
+        SELECT 'REVOKE ' || granted_role || ' FROM ' || grantee || ';' AS revoke_statement
+        FROM dba_role_privs
+        WHERE granted_role IN ('ROLE1', 'ROLE2')
+          AND grantee IN (
+              SELECT username
+              FROM dba_users
+              WHERE default_tablespace = 'ABC'  -- Adjust this condition based on how you identify users in schema ABC
+          )
+    ) LOOP
+        EXECUTE IMMEDIATE revoke_stmt.revoke_statement;
+    END LOOP;
+END;
+/
+SELECT grantee, granted_role
+FROM dba_role_privs
+WHERE granted_role IN ('ROLE1', 'ROLE2')
+  AND grantee IN (
+      SELECT username
+      FROM dba_users
+      WHERE default_tablespace = 'ABC'
+  );
+
