@@ -429,3 +429,23 @@ END
 ALTER TABLE ABC.table_name COMPRESS YES;
 REORG TABLE ABC.table_name;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Properties;
+
+public class OracleProxyConnection {
+    public static Connection getProxyConnection() throws SQLException {
+        // Connect as ABC user initially
+        Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@//hostname:port/service_name");
+
+        // Set up the properties for proxy
+        Properties proxyProps = new Properties();
+        proxyProps.put(oracle.jdbc.OracleConnection.PROXY_USER_NAME, "USER1");
+
+        // Enable proxy 
+        ((oracle.jdbc.OracleConnection) connection).openProxySession(oracle.jdbc.OracleConnection.PROXYTYPE_USER_NAME, proxyProps);
+
+        return connection;
+    }
+}
