@@ -449,3 +449,37 @@ public class OracleProxyConnection {
         return connection;
     }
 }
+#Identifying Locked Objects:
+SELECT
+    s.sid,
+    s.serial#,
+    s.username,
+    s.osuser,
+    l.type,
+    o.object_name,
+    o.object_type
+FROM
+    v$locked_object l
+    JOIN dba_objects o ON l.object_id = o.object_id
+    JOIN v$session s ON l.session_id = s.sid;
+#Session lock 
+SELECT
+    s1.username || '@' || s1.machine || ' (SID=' || s1.sid || ')' AS blocking_session,
+    s2.username || '@' || s2.machine || ' (SID=' || s2.sid || ')' AS waiting_session,
+    o.object_name AS locked_object,
+    s2.event,
+    s2.wait_time,
+    s2.seconds_in_wait
+FROM
+    v$lock l1
+    JOIN v$session s1 ON l1.sid = s1.sid
+    JOIN v$lock l2 ON l1.id1 = l2.id1 AND l1.id2 = l2.id2
+    JOIN v$session s2 ON l2.sid = s2.sid
+    JOIN dba_objects o ON l1.id1 = o.object_id
+WHERE
+    l1.block = 1 AND l2.request > 0;
+
+#ALTER SYSTEM KILL SESSION 'sid,serial#' IMMEDIATE;
+
+
+
