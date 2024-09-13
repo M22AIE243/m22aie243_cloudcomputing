@@ -554,3 +554,12 @@ Summary of Steps:
 3.	Configuration Parameters: Extract DB2 and Oracle configurations and compare performance-related parameters like session count and cache size.
 4.	Sequences: Extract sequence details from both databases and compare the current values.
 
+index=<your_index> 
+source=<your_source> 
+"GET" OR "POST" OR "/api/v1/traffic"  // your search string identifying traffic
+earliest=-10d@d latest=now
+| eval hour_of_day=strftime(_time, "%H")
+| search hour_of_day >= 01 AND hour_of_day <= 06
+| timechart span=1h count as traffic_count
+| where traffic_count < <threshold_for_low_traffic>
+| sort + traffic_count
