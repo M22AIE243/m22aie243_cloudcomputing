@@ -482,4 +482,75 @@ WHERE
 #ALTER SYSTEM KILL SESSION 'sid,serial#' IMMEDIATE;
 
 
+1. Check Grants for All Tables/Stored Procedures in Schema ABC (Oracle)
+To list the grants on tables and stored procedures in the ABC schema, you can use the following queries:
+a) Grants on Tables:
+
+SELECT table_name, grantee, privilege
+FROM dba_tab_privs
+WHERE owner = 'ABC';
+b) Grants on Stored Procedures (Packages, Procedures, Functions):
+
+SELECT object_name, grantee, privilege
+FROM dba_tab_privs
+WHERE owner = 'ABC'
+  AND object_type IN ('PROCEDURE', 'FUNCTION', 'PACKAGE');
+2. Compare Constraints for All Tables in Schema ABC Between DB2 and Oracle
+You'll need to extract the constraints from both DB2 and Oracle, and then compare them.
+a) List Constraints in DB2:
+To list constraints in DB2 for schema ABC, you can run the following:
+
+SELECT constname AS constraint_name,
+       tabname AS table_name,
+       type AS constraint_type
+FROM syscat.tabconst
+WHERE tabschema = 'ABC';
+b) List Constraints in Oracle:
+For Oracle, the following query can be used:
+
+SELECT constraint_name, table_name, constraint_type
+FROM dba_constraints
+WHERE owner = 'ABC';
+
+3. Compare Configuration Parameters Between DB2 and Oracle
+Configuration parameters affect performance, and it's essential to compare key parameters in both DBMSs.
+a) Extract Configuration Parameters in DB2:
+For DB2, run the following command to get the database configuration:
+
+GET DATABASE CONFIGURATION FOR your_db_name SHOW DETAIL;
+To extract specific values such as session count, cache, and others:
+
+SELECT * FROM sysibmadm.dbcfg WHERE name IN ('MAX_CONNECTIONS', 'PACKAGE_CACHE_SIZE');
+b) Extract Configuration Parameters in Oracle:
+For Oracle, use the following query to get the session count, cache size, and other key parameters:
+
+SELECT name, value
+FROM v$parameter
+WHERE name IN ('sessions', 'db_cache_size', 'pga_aggregate_target', 'sga_target');
+c) Compare Configuration Parameters:
+Again, export the results from DB2 and Oracle, and compare the key parameters. Consider matching the values that are important for performance tuning, such as connection limits, cache sizes, and memory allocation.
+4. Compare All Sequences in Schema ABC Between DB2 and Oracle
+To ensure the sequences in both databases are in sync, you can compare their current values and other properties.
+a) Get Sequences in DB2:
+To list all sequences in DB2, use the following query:
+SELECT seqname AS sequence_name, 
+       seqschema AS schema_name, 
+       lastusedval AS current_value 
+FROM syscat.sequences 
+WHERE seqschema = 'ABC';
+b) Get Sequences in Oracle:
+To list all sequences in Oracle, run this query:
+
+SELECT sequence_name, 
+       last_number AS current_value 
+FROM dba_sequences 
+WHERE sequence_owner = 'ABC';
+c) Compare Sequences:
+You can manually compare the current values and properties of the sequences or automate the process using a script to extract, match, and report discrepancies.
+ 
+Summary of Steps:
+1.	Grants: Check grants on tables and stored procedures in Oracle using dba_tab_privs.
+2.	Constraints: Extract constraints from both DB2 and Oracle and compare.
+3.	Configuration Parameters: Extract DB2 and Oracle configurations and compare performance-related parameters like session count and cache size.
+4.	Sequences: Extract sequence details from both databases and compare the current values.
 
