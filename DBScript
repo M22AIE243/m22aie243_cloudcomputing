@@ -566,4 +566,21 @@ BEGIN
     END LOOP;
 END;
 /
+BEGIN
+    FOR obj IN (
+        SELECT object_name, object_type 
+        FROM dba_objects 
+        WHERE owner = 'ABC' 
+        AND object_type IN ('TABLE','PROCEDURE', 'FUNCTION', 'PACKAGE', 'SEQUENCE')
+    ) LOOP
+        IF obj.object_type IN ('PROCEDURE', 'FUNCTION', 'PACKAGE') THEN
+            EXECUTE IMMEDIATE 'REVOKE EXECUTE ON ABC.' || obj.object_name || ' FROM ROLE2';
+        ELSIF obj.object_type = 'TABLE' THEN
+            EXECUTE IMMEDIATE 'REVOKE INSERT, UPDATE, DELETE, SELECT ON ABC.' || obj.object_name || ' FROM ROLE2';
+        ELSIF obj.object_type = 'SEQUENCE' THEN
+            EXECUTE IMMEDIATE 'REVOKE SELECT ON ABC.' || obj.object_name || ' FROM ROLE2';
+        END IF;
+    END LOOP;
+END;
+/
 
