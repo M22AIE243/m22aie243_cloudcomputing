@@ -609,3 +609,22 @@ BEGIN
 END;
 /
 
+--Db2 Query to get max value of primary key 
+BEGIN
+   FOR cur AS
+      SELECT t.tabname AS table_name,
+             c.colname AS column_name
+      FROM syscat.tabconst t
+      JOIN syscat.keycoluse k ON t.constname = k.constname
+      JOIN syscat.columns c ON k.tabname = c.tabname AND k.colname = c.colname
+      WHERE t.tabschema = 'ABC'
+        AND t.type = 'P'
+   DO
+      DECLARE max_query VARCHAR(1024);
+      SET max_query = 'SELECT MAX(' || cur.column_name || ') AS max_value FROM ABC.' || cur.table_name;
+      
+      -- You can use dynamic SQL execution if you are writing a procedure
+      EXECUTE IMMEDIATE max_query;
+   END FOR;
+END;
+
