@@ -627,4 +627,51 @@ BEGIN
       EXECUTE IMMEDIATE max_query;
    END FOR;
 END;
-
+-- Query that is blocking
+SELECT 
+    s.sid, 
+    s.serial#, 
+    s.username, 
+    s.status, 
+    s.osuser, 
+    s.machine, 
+    s.program, 
+    l.blocking_session,
+    l.locked_mode,
+    o.object_name,
+    o.object_type,
+    q.sql_text
+FROM 
+    v$session s
+JOIN 
+    v$locked_object l ON s.sid = l.session_id
+JOIN 
+    dba_objects o ON l.object_id = o.object_id
+JOIN 
+    v$sql q ON s.sql_id = q.sql_id
+WHERE 
+    s.sid IN (SELECT blocking_session FROM v$session WHERE blocking_session IS NOT NULL);
+--blocking sessions
+SELECT 
+    s.sid, 
+    s.serial#, 
+    s.username, 
+    s.status, 
+    s.osuser, 
+    s.machine, 
+    s.program, 
+    l.blocking_session,
+    l.locked_mode,
+    o.object_name,
+    o.object_type,
+    q.sql_text
+FROM 
+    v$session s
+JOIN 
+    v$sql q ON s.sql_id = q.sql_id
+LEFT JOIN 
+    v$locked_object l ON s.sid = l.session_id
+JOIN 
+    dba_objects o ON l.object_id = o.object_id
+WHERE 
+    s.blocking_session IS NOT NULL;
