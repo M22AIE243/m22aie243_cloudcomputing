@@ -683,3 +683,19 @@ WHERE owner = 'ABC'
   AND constraint_type = 'R'  -- 'R' is the type for foreign keys
 GROUP BY table_name
 ORDER BY foreign_key_count DESC;
+
+
+SELECT kcu.tabname AS table_name, kcu.colname AS column_name
+FROM syscat.keycoluse kcu
+JOIN syscat.tabconst tc ON kcu.constname = tc.constname
+WHERE tc.type = 'P'  -- 'P' for primary keys
+  AND kcu.tabschema = 'ABC'
+ORDER BY kcu.tabname, kcu.colseq;
+
+
+SELECT cols.table_name, cols.column_name
+FROM all_cons_columns cols
+JOIN all_constraints cons ON cols.constraint_name = cons.constraint_name
+WHERE cons.constraint_type = 'P'  -- 'P' for primary keys
+  AND cons.owner = 'ABC'
+ORDER BY cols.table_name, cols.position;
