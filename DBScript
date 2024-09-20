@@ -675,3 +675,11 @@ JOIN
     dba_objects o ON l.object_id = o.object_id
 WHERE 
     s.blocking_session IS NOT NULL;
+//check FK in Oracle 
+
+SELECT table_name, COUNT(constraint_name) AS foreign_key_count
+FROM all_constraints
+WHERE owner = 'ABC'
+  AND constraint_type = 'R'  -- 'R' is the type for foreign keys
+GROUP BY table_name
+ORDER BY foreign_key_count DESC;
